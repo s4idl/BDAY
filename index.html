@@ -92,7 +92,7 @@ mark{background:var(--amarillo);color:var(--negro);padding:0 5px;font-weight:700
 
 <header class="hud" id="hud" hidden>
   <div class="left"><div class="lbl">Fallas</div><div class="mval" id="ms">0<span>/10</span></div></div>
-  <div class="score"><b id="sc">000</b><span id="goal">/030</span></div>
+  <div class="score"><b id="sc">000</b><span id="goal">/050</span></div>
   <div class="right">
     <div class="lives" id="lv" aria-label="Vidas"></div>
     <button id="mute" type="button" aria-label="Silenciar">♪</button>
@@ -110,7 +110,7 @@ mark{background:var(--amarillo);color:var(--negro);padding:0 5px;font-weight:700
       <div><dt>Power-ups</dt><dd>El imán jala todo hacia la bolsa. Ctrl+Z deshace lo malo por unos segundos.<span class="ic"><canvas data-k="magnet"></canvas><canvas data-k="ctrlz"></canvas></span></dd></div>
       <div><dt>Hora pico</dt><dd>Atrapa 15 seguidas sin fallar: por unos segundos llueven puros regalos y todo vale doble.</dd></div>
       <div><dt>Ojo</dt><dd>Si se te caen 10 cosas, pierdes. Lo malo te quita vida.</dd></div>
-      <div><dt>Meta</dt><dd>30 para tu mensaje. En 100 hay otra sorpresa, y después no se acaba.</dd></div>
+      <div><dt>Meta</dt><dd>50 para tu mensaje. En 150 hay otra sorpresa, y después no se acaba.</dd></div>
     </dl>
     <button class="go" id="go" type="button">Jugar <span class="arr">→</span></button>
     <div class="foot">Arrastra el dedo · flechas ← → en compu</div>
@@ -146,9 +146,9 @@ mark{background:var(--amarillo);color:var(--negro);padding:0 5px;font-weight:700
 
 <section class="ov ruido" id="ov100" hidden>
   <div class="in">
-    <div class="strip"><span>Nivel 100</span><span>Sin final</span></div>
-    <div class="mega n100">100</div>
-    <p class="big">No mames, Criss. ¿Cien?</p>
+    <div class="strip"><span>Nivel 150</span><span>Sin final</span></div>
+    <div class="mega n100">150</div>
+    <p class="big">No mames, Criss. ¿Ciento cincuenta?</p>
     <p class="small">"Feliz cumpleaños". Ya no se acaba, dale hasta que te aburras. Te quiero chingos.</p>
     <button class="go" id="go100" type="button">Dale <span class="arr">→</span></button>
   </div>
@@ -487,12 +487,12 @@ function catchIt(it){
   const prev=S.score;S.score+=pts;S.streak++;if(S.rush<=0)S.chain++;P.sq=1;
   say('+'+pts,it.x,P.y-P.h-12,pts>1?C.amarillo:C.blanco,pts>1?34:28);
   burst(it.x,P.y-P.h/2,def.p>1?[C.amarillo,C.rojo,C.blanco]:[C.rojo,C.amarillo,C.rosa],def.p>1?20:9);
-  if(prev>=100)hbNote();else sfx(def.p>1?'gold':'good');
+  if(prev>=150)hbNote();else sfx(def.p>1?'gold':'good');
   if(S.rush<=0&&S.chain>=CHAIN)rush();
   else if(S.rush<=0&&S.chain===10)say('5 MÁS PARA HORA PICO',W/2,H*0.4,C.rosa,34);
   if(S.score>S.best){S.best=S.score;try{localStorage.setItem('criss-best',String(S.best))}catch(e){}}
   hud();
-  if(prev<30&&S.score>=30)hit30();else if(prev<100&&S.score>=100)hit100();
+  if(prev<50&&S.score>=50)hit30();else if(prev<150&&S.score>=150)hit100();
 }
 function clearBad(){for(const it of S.items)if(it.bad)it.done=true}
 function miss(it){
@@ -506,13 +506,13 @@ function hit30(){
   if(!S.seenWin){S.seenWin=true;S.state='win';clearBad();burst(W/2,H*0.5,[C.rojo,C.amarillo,C.blanco,C.rosa],44);song();
     $('winMainT').textContent='Seguir jugando';$('winAlt').hidden=false;
     setTimeout(()=>{$('hud').hidden=true;$('ovWin').hidden=false;$('winMain').focus()},900)}
-  else say('30 · VIDAS LLENAS',W/2,H*0.4,C.amarillo,40);
+  else say('50 · VIDAS LLENAS',W/2,H*0.4,C.amarillo,40);
 }
 function hit100(){
   S.ruido=true;S.lives=S.maxL;S.misses=0;S.hb=0;hud();startBeat();S.glitch=0.3;
   if(!S.seen100){S.seen100=true;S.state='r100';clearBad();burst(W/2,H*0.5,[C.rojo,C.amarillo,C.rosa],50);
     setTimeout(()=>{$('hud').hidden=true;$('ov100').hidden=false;$('go100').focus()},700)}
-  else say('100 OTRA VEZ',W/2,H*0.4,C.rojo,48);
+  else say('150 OTRA VEZ',W/2,H*0.4,C.rojo,48);
 }
 function rush(){
   S.rush=RUSH;S.chain=0;clearBad();S.glitch=RM?0:0.25;S.pulse=1;
@@ -530,9 +530,9 @@ function start(){
 }
 function over(why){
   S.state='over';stopBeat();S.ruido=false;S.pw.magnet=0;S.pw.shield=0;S.rush=0;S.chain=0;for(const it of S.items)it.done=true;
-  if(S.score<30){
+  if(S.score<50){
     $('loseK').textContent=why==='miss'?'Se te cayeron 10':'Te reventaron';
-    $('loseN').innerHTML=`${S.score}<small>/30</small>`;
+    $('loseN').innerHTML=`${S.score}<small>/50</small>`;
     $('loseT').textContent=(why==='miss'?'No dejes caer nada y esquiva lo malo.':'Esquiva las bombas, calaveras y errores.')+((!S.seenWin&&S.tries>=2)?' La próxima tienes 5 vidas.':'');
   }else{
     $('loseK').textContent=why==='miss'?'Se te cayeron 10':'Fin de la tocada';
@@ -553,7 +553,7 @@ $('readMsg').addEventListener('click',()=>{ac();$('ovLose').hidden=true;S.readin
 
 function hud(){
   $('sc').textContent=String(S.score).padStart(3,'0');
-  $('goal').textContent=S.score<30?'/030':S.score<100?'/100':'∞';
+  $('goal').textContent=S.score<50?'/050':S.score<150?'/150':'∞';
   $('ms').innerHTML=`${S.misses}<span>/${MAXMISS}</span>`;$('ms').classList.toggle('hot',S.misses>=7);
   let h='';for(let i=0;i<S.maxL;i++)h+=`<i class="${i<S.lives?'':'off'}"></i>`;$('lv').innerHTML=h;
 }
@@ -613,8 +613,11 @@ function draw(){
   ctx.globalAlpha=1;
   for(const t of S.texts){
     ctx.globalAlpha=Math.max(0,Math.min(1,t.life*1.6));
-    font(ctx,900,t.size);ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.lineWidth=6;ctx.strokeStyle=C.negro;ctx.lineJoin='round';ctx.strokeText(t.txt,t.x,t.y);ctx.fillStyle=t.col;ctx.fillText(t.txt,t.x,t.y);
+    font(ctx,900,t.size);let tw=ctx.measureText(t.txt).width;const fit=Math.min(1,(W-40)/Math.max(tw,1));
+    if(fit<1){font(ctx,900,Math.floor(t.size*fit));tw=ctx.measureText(t.txt).width}
+    const tx=Math.min(Math.max(t.x,tw/2+20),W-tw/2-20);
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.lineWidth=6;ctx.strokeStyle=C.negro;ctx.lineJoin='round';ctx.strokeText(t.txt,tx,t.y);ctx.fillStyle=t.col;ctx.fillText(t.txt,tx,t.y);
   }
   ctx.globalAlpha=1;
   for(const c of S.conf){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.rot);ctx.scale(Math.cos(c.ph*2),1);ctx.fillStyle=c.c;ctx.fillRect(-c.w/2,-c.h/2,c.w,c.h);ctx.restore()}
