@@ -43,6 +43,7 @@ body{background:var(--negro);color:var(--blanco);font-family:var(--body);overflo
 #mute.off{text-decoration:line-through;opacity:.5}
 
 /* Poster overlays */
+[hidden]{display:none!important}
 .ov{position:fixed;inset:0;z-index:5;overflow-y:auto;display:flex;padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 28px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .in{margin:auto;width:100%;max-width:520px;display:flex;flex-direction:column;gap:18px;animation:in .5s cubic-bezier(.2,.9,.2,1) both}
 @keyframes in{from{opacity:0;transform:translateY(18px)}}
