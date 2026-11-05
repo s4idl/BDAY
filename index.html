@@ -84,6 +84,7 @@ mark{background:var(--amarillo);color:var(--negro);padding:0 5px;font-weight:700
 .firma{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--amarillo)}
 .n100{color:var(--rojo);font-size:clamp(160px,56vw,320px);text-shadow:5px 0 0 var(--amarillo),-5px 0 0 var(--rosa);animation:jit 1.4s steps(1) infinite}
 @keyframes jit{0%,100%{transform:none}46%{transform:translate(4px,-2px) skewX(-6deg)}48%{transform:translate(-6px,1px)}50%{transform:none}82%{transform:translate(3px,0) skewX(4deg)}84%{transform:none}}
+.n500{color:var(--amarillo);text-shadow:5px 0 0 var(--rojo),-5px 0 0 var(--rosa)}
 @media (prefers-reduced-motion:reduce){.in,.n100{animation:none}}
 </style>
 
@@ -154,6 +155,17 @@ mark{background:var(--amarillo);color:var(--negro);padding:0 5px;font-weight:700
   </div>
 </section>
 
+<section class="ov dark" id="ov500" hidden>
+  <div class="in">
+    <div class="strip"><span>Nivel 500</span><span>Leyenda</span></div>
+    <div class="mega n100 n500">500</div>
+    <p class="big">¿500? Ya estás enfermo.</p>
+    <div class="msg"><p>Nadie iba a llegar hasta aquí más que tú. Así eres con todo lo que haces: no le paras hasta que queda chingón. Feliz cumpleaños, Criss.</p></div>
+    <div class="firma">— Said</div>
+    <button class="go" id="go500" type="button">Seguir <span class="arr">→</span></button>
+  </div>
+</section>
+
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -172,7 +184,7 @@ const BAD=['y2k','heart','comic'];
 const GIFTC=[[C.rojo,C.amarillo],[C.amarillo,C.rojo],[C.rosa,C.blanco],[C.blanco,C.rojo],[C.azul,C.amarillo],[C.verde,C.negro]];
 
 let W=0,H=0,SAT=0,SAB=0,DPR=1,BG=null;
-const S={state:'start',score:0,lives:3,maxL:3,tries:0,seenWin:false,seen100:false,ruido:false,reading:false,streak:0,
+const S={state:'start',score:0,lives:3,maxL:3,tries:0,seenWin:false,seen100:false,seen500:false,gold:false,ruido:false,reading:false,streak:0,
   items:[],parts:[],texts:[],conf:[],spawnT:0,shake:0,flash:0,t:0,confT:0,pulse:0,glitch:0,best:0,
   misses:0,why:'',hb:0,pw:{magnet:0,shield:0},rush:0,chain:0};
 const RUSH=6,CHAIN=15;
@@ -492,7 +504,7 @@ function catchIt(it){
   else if(S.rush<=0&&S.chain===10)say('5 MÁS PARA HORA PICO',W/2,H*0.4,C.rosa,34);
   if(S.score>S.best){S.best=S.score;try{localStorage.setItem('criss-best',String(S.best))}catch(e){}}
   hud();
-  if(prev<50&&S.score>=50)hit30();else if(prev<150&&S.score>=150)hit100();
+  if(prev<50&&S.score>=50)hit30();else if(prev<150&&S.score>=150)hit100();else if(prev<500&&S.score>=500)hit500();
 }
 function clearBad(){for(const it of S.items)if(it.bad)it.done=true}
 function miss(it){
@@ -519,17 +531,23 @@ function rush(){
   say('¡HORA PICO!',W/2,H*0.36,C.amarillo,58);say('TODO VALE DOBLE',W/2,H*0.36+52,C.blanco,26);
   sfx('pw');try{navigator.vibrate&&navigator.vibrate([40,40,40])}catch(e){}
 }
-function hideOv(){['ovStart','ovLose','ovWin','ov100'].forEach(id=>$(id).hidden=true)}
+function hit500(){
+  S.gold=true;S.lives=S.maxL;S.misses=0;hud();
+  if(!S.seen500){S.seen500=true;S.state='r500';stopBeat();clearBad();burst(W/2,H*0.5,[C.amarillo,C.blanco,C.rojo,C.rosa],70);song();
+    setTimeout(()=>{$('hud').hidden=true;$('ov500').hidden=false;$('go500').focus()},900)}
+  else say('500 · LEYENDA',W/2,H*0.4,C.amarillo,48);
+}
+function hideOv(){['ovStart','ovLose','ovWin','ov100','ov500'].forEach(id=>$(id).hidden=true)}
 function resume(){hideOv();S.state='play';S.reading=false;S.items=[];S.conf=[];S.spawnT=0.8;$('hud').hidden=false;hud()}
 function start(){
   ac();stopBeat();
   S.maxL=(!S.seenWin&&S.tries>=2)?5:3;S.tries++;
-  S.state='play';S.score=0;S.lives=S.maxL;S.ruido=false;S.reading=false;S.streak=0;S.misses=0;S.hb=0;S.pw.magnet=0;S.pw.shield=0;S.rush=0;S.chain=0;
+  S.state='play';S.score=0;S.lives=S.maxL;S.ruido=false;S.gold=false;S.reading=false;S.streak=0;S.misses=0;S.hb=0;S.pw.magnet=0;S.pw.shield=0;S.rush=0;S.chain=0;
   S.items=[];S.parts=[];S.texts=[];S.conf=[];S.spawnT=0.6;
   P.x=P.tx=W/2;hideOv();$('hud').hidden=false;hud();
 }
 function over(why){
-  S.state='over';stopBeat();S.ruido=false;S.pw.magnet=0;S.pw.shield=0;S.rush=0;S.chain=0;for(const it of S.items)it.done=true;
+  S.state='over';stopBeat();S.ruido=false;S.gold=false;S.pw.magnet=0;S.pw.shield=0;S.rush=0;S.chain=0;for(const it of S.items)it.done=true;
   if(S.score<50){
     $('loseK').textContent=why==='miss'?'Se te cayeron 10':'Te reventaron';
     $('loseN').innerHTML=`${S.score}<small>/50</small>`;
@@ -543,10 +561,11 @@ function over(why){
   setTimeout(()=>{$('hud').hidden=true;$('ovLose').hidden=false;$('retry').focus()},550);
 }
 $('go').addEventListener('click',start);
-function menu(){stopBeat();S.state='start';S.ruido=false;S.reading=false;S.rush=0;S.pw.magnet=0;S.pw.shield=0;S.items=[];S.conf=[];S.texts=[];hideOv();$('hud').hidden=true;$('ovStart').hidden=false;$('ovStart').scrollTop=0;$('go').focus()}
+function menu(){stopBeat();S.state='start';S.ruido=false;S.gold=false;S.reading=false;S.rush=0;S.pw.magnet=0;S.pw.shield=0;S.items=[];S.conf=[];S.texts=[];hideOv();$('hud').hidden=true;$('ovStart').hidden=false;$('ovStart').scrollTop=0;$('go').focus()}
 $('toMenu').addEventListener('click',menu);$('toMenu2').addEventListener('click',menu);
 $('retry').addEventListener('click',start);
 $('go100').addEventListener('click',resume);
+$('go500').addEventListener('click',()=>{resume();startBeat()});
 $('winMain').addEventListener('click',()=>{if(S.state==='win')resume();else{S.tries=0;start()}});
 $('winAlt').addEventListener('click',()=>{S.tries=0;start()});
 $('readMsg').addEventListener('click',()=>{ac();$('ovLose').hidden=true;S.reading=true;$('winMainT').textContent='Jugar otra vez';$('winAlt').hidden=true;$('ovWin').hidden=false;song();$('winMain').focus()});
@@ -587,7 +606,7 @@ function update(dt){
   S.texts=S.texts.filter(t=>t.life>0);
   if(S.shake>0)S.shake-=dt;if(S.flash>0)S.flash-=dt;if(S.glitch>0)S.glitch-=dt;
   S.pulse=Math.max(0,S.pulse-dt*4);
-  if(S.state==='win'||S.reading){
+  if(S.state==='win'||S.state==='r500'||S.reading){
     S.confT-=dt;
     if(S.confT<=0&&S.conf.length<(RM?40:220)){S.confT=RM?0.25:0.03;const cols=[C.rojo,C.amarillo,C.blanco,C.rosa,C.verde];
       for(let i=0;i<(RM?2:4);i++)S.conf.push({x:Math.random()*W,y:topY(),vx:(Math.random()-.5)*60,vy:60+Math.random()*120,rot:Math.random()*6,vr:(Math.random()-.5)*8,w:6+Math.random()*7,h:10+Math.random()*8,c:cols[Math.random()*cols.length|0],ph:Math.random()*6})}
@@ -600,7 +619,7 @@ function draw(){
   ctx.save();
   if(S.shake>0){const m=S.shake/0.4;ctx.translate((Math.random()-.5)*14*m,(Math.random()-.5)*9*m)}
   if(BG)ctx.drawImage(BG,0,0,W,H);else{ctx.fillStyle=C.muro;ctx.fillRect(0,0,W,H)}
-  if(S.ruido){ctx.fillStyle=`rgba(255,31,31,${0.1+S.pulse*0.14})`;ctx.fillRect(0,0,W,H)}
+  if(S.ruido){ctx.fillStyle=S.gold?`rgba(255,196,0,${0.14+S.pulse*0.14})`:`rgba(255,31,31,${0.1+S.pulse*0.14})`;ctx.fillRect(0,0,W,H)}
   if(S.rush>0){const a=Math.min(1,S.rush,RUSH-S.rush+0.001)*(0.13+0.07*Math.sin(S.t*14));ctx.fillStyle=`rgba(255,255,0,${a})`;ctx.fillRect(0,0,W,H)}
   for(const it of S.items){
     if(ITEMS[it.k].pw){const pr=it.s*(0.9+Math.sin(S.t*10+it.ph)*0.12);const gr=ctx.createRadialGradient(it.x,it.y,0,it.x,it.y,pr);gr.addColorStop(0,it.k==='magnet'?'rgba(255,31,31,.55)':'rgba(159,227,255,.6)');gr.addColorStop(1,'rgba(255,255,0,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(it.x,it.y,pr,0,Math.PI*2);ctx.fill()}
